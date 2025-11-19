@@ -3,10 +3,13 @@
 所有版本使用相同的 UI 介面
 """
 
+from pathlib import Path
+
 import pygame
 from shared.ui.views.product_list_view import ProductListView
 from shared.ui.views.cart_view import CartView
 from shared.ui.views.checkout_view import CheckoutView
+from shared.ui.views.base_view import BaseView
 
 class MainWindow:
     def __init__(self, cart, width=1200, height=800):
@@ -24,6 +27,9 @@ class MainWindow:
         self.checkout_view = CheckoutView(self.screen, self.cart)
         
         self.current_view = "product_list"
+        self.nav_font = self._load_shared_font(22)
+        self.nav_hint_font = self._load_shared_font(18)
+        self._views = ["product_list", "cart", "checkout"]
     
     def run(self):
         """主迴圈"""
@@ -40,6 +46,13 @@ class MainWindow:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.running = False
+                elif event.key == pygame.K_LEFT:
+                    self._switch_relative(-1)
+                elif event.key == pygame.K_RIGHT:
+                    self._switch_relative(1)
             
             # 分派事件到當前視圖
             if self.current_view == "product_list":
@@ -69,8 +82,51 @@ class MainWindow:
         elif self.current_view == "checkout":
             self.checkout_view.draw()
         
+        self._draw_navigation_bar()
         pygame.display.flip()
     
     def switch_view(self, view_name):
         """切換視圖"""
         self.current_view = view_name
+
+    def _draw_navigation_bar(self):
+        """Draws the view-switch instructions at the bottom of the window."""
+        nav_items = [
+            ("←/→", "切換視圖"),
+            ("Esc", "離開"),
+        ]
+        text = "   |   ".join(
+            f"[{key}] {label}"
+            for key, label in nav_items
+        )
+        surface = self.nav_font.render(text, True, (60, 60, 60))
+        rect = surface.get_rect()
+        rect.left = 20
+        rect.bottom = self.screen.get_height() - 10
+        pygame.draw.rect(self.screen, (235, 235, 235), (
+            0,
+            rect.top - 6,
+            self.screen.get_width(),
+            rect.height + 12,
+        ))
+        self.screen.blit(surface, rect)
+        hint = "←/→ 切換視圖；Esc 離開"
+        hint_surface = self.nav_hint_font.render(hint, True, (100, 100, 100))
+        self.screen.blit(hint_surface, (20, rect.top - 24))
+
+    def _switch_relative(self, step: int) -> None:
+        idx = self._views.index(self.current_view)
+        idx = (idx + step) % len(self._views)
+        self.current_view = self._views[idx]
+
+    def _load_shared_font(self, size: int) -> pygame.font.Font:
+        for candidate in BaseView.FONT_CANDIDATES:
+            if candidate is None:
+                break
+            path = Path(candidate)
+            if path.exists():
+                try:
+                    return pygame.font.Font(str(path), size)
+                except OSError:
+                    continue
+        return pygame.font.Font(None, size)
