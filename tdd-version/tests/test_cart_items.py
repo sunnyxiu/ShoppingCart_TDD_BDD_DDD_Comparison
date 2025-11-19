@@ -89,3 +89,20 @@ def test_remove_item_deletes_entry():
 
     assert cart.items == []
     assert cart.subtotal == 0
+
+
+def test_clear_cart_resets_state():
+    cart = Cart()
+    product = get_product_by_id("P001")
+    assert product is not None
+
+    cart.add_item(product.id, 1)
+    cart.apply_discount("SAVE100")
+
+    cart.clear()
+
+    assert cart.items == []
+    assert cart.subtotal == 0
+    assert cart.discount_amount == 0
+    assert cart.final_amount == 0
+    assert cart.applied_discount is None

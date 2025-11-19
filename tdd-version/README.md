@@ -35,7 +35,7 @@ TDD 實作只依賴 `shared/` 目錄提供的模型、資料與工具，所有�
    - `get_summary()` 回傳 items、subtotal、discount、final_amount 等欄位。
    - 固定金額與百分比折扣都需呼叫 `price_calculator.calculate_final_amount`。
 7. **清空購物車**
-   - `clear()` 清除項目與折扣。
+   - `clear()` 清除項目與折扣，並重算總額。
 
 ## 測試目錄結構
 
