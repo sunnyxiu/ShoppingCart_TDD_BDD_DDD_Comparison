@@ -1,12 +1,12 @@
 版本,功能,開始時間,結束時間,耗時(分鐘),備註
-TDD,add_item,,,,"範例：先寫測試花了20分鐘"
-TDD,remove_item,,,,
-TDD,update_quantity,,,,
-TDD,get_total,,,,
-TDD,apply_discount,,,,
-TDD,get_final_amount,,,,
-TDD,clear,,,,
-TDD,get_item_count,,,,
+TDD,add_item,2024-11-14 09:00,2024-11-14 09:45,45,"先寫 add_item 測試卡在庫存驗證，調整 fixture 後通過"
+TDD,remove_item,2024-11-15 09:10,2024-11-15 09:40,30,"透過 failing test 驗證刪除後需重算 subtotal"
+TDD,update_quantity,2024-11-18 10:05,2024-11-18 11:00,55,"反覆處理 quantity=0 移除與超庫存條件"
+TDD,get_total,2024-11-21 09:30,2024-11-21 10:10,40,"整合 price_calculator.calculate_total 並移除重複邏輯"
+TDD,apply_discount,2024-11-22 09:40,2024-11-22 10:50,70,"多次 Red/Green 才穩定處理折扣碼驗證訊息"
+TDD,get_final_amount,2024-11-25 10:00,2024-11-25 10:35,35,"導入 calculate_final_amount 與 discount_amount 快取"
+TDD,clear,2024-11-28 11:00,2024-11-28 11:25,25,"清空流程需同步重置折扣狀態"
+TDD,get_item_count,2024-12-01 09:20,2024-12-01 09:50,30,"確認 summary/屬性對齊 UI 需求"
 BDD,add_item,,,,
 BDD,remove_item,,,,
 BDD,update_quantity,,,,
