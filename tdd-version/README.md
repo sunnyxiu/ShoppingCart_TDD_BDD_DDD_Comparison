@@ -43,9 +43,9 @@ TDD 實作只依賴 `shared/` 目錄提供的模型、資料與工具，所有�
 tdd-version/
   src/cart.py        # 待實作的 Cart 類別
   tests/
+    test_cart_initialization.py
     test_cart_items.py
     test_cart_discounts.py
-    test_cart_summary.py
 ```
 
 每個測試檔以 pytest fixture 提供 `Cart` 實例與共用商品資料，確保測試彼此獨立。
