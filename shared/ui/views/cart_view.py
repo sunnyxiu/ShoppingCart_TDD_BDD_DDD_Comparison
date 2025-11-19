@@ -46,7 +46,6 @@ class CartView(BaseView):
         y = self.draw_line(f"應付金額：${self.cart.final_amount:,}", y, color=self.TEXT_COLOR)
 
         items = self.cart.items
-        message_y = y + 20
         if not items:
             y = self.draw_line("購物車目前為空。請在商品檢視中加入商品。", y + 20, color=self.SUBTEXT_COLOR)
             message_y = y + 10
