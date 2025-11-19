@@ -29,7 +29,12 @@ class MainWindow:
         self.current_view = "product_list"
         self.nav_font = self._load_shared_font(22)
         self.nav_hint_font = self._load_shared_font(18)
-        self._views = ["product_list", "cart", "checkout"]
+        self._nav_items = [
+            ("1", "商品清單", "product_list"),
+            ("2", "購物車", "cart"),
+            ("3", "結帳 / 折扣", "checkout"),
+        ]
+        self._view_order = [item[2] for item in self._nav_items]
     
     def run(self):
         """主迴圈"""
@@ -46,14 +51,11 @@ class MainWindow:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    self.running = False
-                elif event.key == pygame.K_LEFT:
-                    self._switch_relative(-1)
-                elif event.key == pygame.K_RIGHT:
-                    self._switch_relative(1)
-            
+                continue
+
+            if event.type == pygame.KEYDOWN and self._handle_global_shortcuts(event):
+                continue
+
             # 分派事件到當前視圖
             if self.current_view == "product_list":
                 self.product_view.handle_event(event)
@@ -91,33 +93,32 @@ class MainWindow:
 
     def _draw_navigation_bar(self):
         """Draws the view-switch instructions at the bottom of the window."""
-        nav_items = [
-            ("←/→", "切換視圖"),
-            ("Esc", "離開"),
-        ]
-        text = "   |   ".join(
-            f"[{key}] {label}"
-            for key, label in nav_items
-        )
-        surface = self.nav_font.render(text, True, (60, 60, 60))
-        rect = surface.get_rect()
-        rect.left = 20
-        rect.bottom = self.screen.get_height() - 10
-        pygame.draw.rect(self.screen, (235, 235, 235), (
-            0,
-            rect.top - 6,
-            self.screen.get_width(),
-            rect.height + 12,
-        ))
-        self.screen.blit(surface, rect)
-        hint = "←/→ 切換視圖；Esc 離開"
-        hint_surface = self.nav_hint_font.render(hint, True, (100, 100, 100))
-        self.screen.blit(hint_surface, (20, rect.top - 24))
+        y = self.screen.get_height() - 70
+        x = 30
+        for key, label, view in self._nav_items:
+            text = f"{key}. {label}"
+            active = view == self.current_view
+            fg = (255, 255, 255) if active else (60, 60, 60)
+            bg = (30, 120, 210) if active else (235, 235, 235)
+            border = 0 if active else 1
+            surface = self.nav_font.render(text, True, fg)
+            rect = surface.get_rect()
+            rect.topleft = (x, y)
+            padding = rect.inflate(24, 16)
+            pygame.draw.rect(self.screen, bg, padding, border_radius=8)
+            if border:
+                pygame.draw.rect(self.screen, (200, 200, 200), padding, width=border, border_radius=8)
+            self.screen.blit(surface, rect)
+            x += padding.width + 10
+
+        hint = "1/2/3 指定視圖；Tab 或 ←/→ 切換；Esc 離開"
+        hint_surface = self.nav_hint_font.render(hint, True, (90, 90, 90))
+        self.screen.blit(hint_surface, (30, y + 44))
 
     def _switch_relative(self, step: int) -> None:
-        idx = self._views.index(self.current_view)
-        idx = (idx + step) % len(self._views)
-        self.current_view = self._views[idx]
+        idx = self._view_order.index(self.current_view)
+        idx = (idx + step) % len(self._view_order)
+        self.current_view = self._view_order[idx]
 
     def _load_shared_font(self, size: int) -> pygame.font.Font:
         for candidate in BaseView.FONT_CANDIDATES:
@@ -130,3 +131,32 @@ class MainWindow:
                 except OSError:
                     continue
         return pygame.font.Font(None, size)
+
+    def _handle_global_shortcuts(self, event: pygame.event.Event) -> bool:
+        if event.key == pygame.K_ESCAPE:
+            self.running = False
+            return True
+        if event.key == pygame.K_TAB:
+            reverse = bool(event.mod & pygame.KMOD_SHIFT)
+            self._switch_relative(-1 if reverse else 1)
+            return True
+        if event.key == pygame.K_LEFT:
+            self._switch_relative(-1)
+            return True
+        if event.key == pygame.K_RIGHT:
+            self._switch_relative(1)
+            return True
+
+        shortcuts = {
+            pygame.K_1: "product_list",
+            pygame.K_KP1: "product_list",
+            pygame.K_2: "cart",
+            pygame.K_KP2: "cart",
+            pygame.K_3: "checkout",
+            pygame.K_KP3: "checkout",
+        }
+        target = shortcuts.get(event.key)
+        if target:
+            self.switch_view(target)
+            return True
+        return False
