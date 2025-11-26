@@ -4,9 +4,9 @@
 """
 
 import pygame
-from shared.ui.views.product_list_view import ProductListView
-from shared.ui.views.cart_view import CartView
-from shared.ui.views.checkout_view import CheckoutView
+from .views.product_list_view import ProductListView
+from .views.cart_view import CartView
+from .views.checkout_view import CheckoutView
 
 class MainWindow:
     def __init__(self, cart, width=1200, height=800):
