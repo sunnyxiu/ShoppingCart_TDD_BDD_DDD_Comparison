@@ -1,25 +1,7 @@
 版本,功能,開始時間,結束時間,耗時(分鐘),備註
-TDD,add_item,,,,"範例：先寫測試花了20分鐘"
-TDD,remove_item,,,,
-TDD,update_quantity,,,,
-TDD,get_total,,,,
-TDD,apply_discount,,,,
-TDD,get_final_amount,,,,
-TDD,clear,,,,
-TDD,get_item_count,,,,
-BDD,add_item,,,,
-BDD,remove_item,,,,
-BDD,update_quantity,,,,
-BDD,get_total,,,,
-BDD,apply_discount,,,,
-BDD,get_final_amount,,,,
-BDD,clear,,,,
-BDD,get_item_count,,,,
-DDD,add_item,,,,
-DDD,remove_item,,,,
-DDD,update_quantity,,,,
-DDD,get_total,,,,
-DDD,apply_discount,,,,
-DDD,get_final_amount,,,,
-DDD,clear,,,,
-DDD,get_item_count,,,,
+DDD, 01_overview.md, 10:00, 10:37, 37
+DDD, 04_data_model.md, 10:39, 10:56, 17
+DDD, 05_business_rules.md, 11:03, 11:05, 2
+DDD, 03_api_specification.md, 11:06, 12:17, 71
+DDD, 03_api_specification.md, 23:32, 23:56, 24
+DDD, 03_api_specification, 20:03, 20:31, 28
