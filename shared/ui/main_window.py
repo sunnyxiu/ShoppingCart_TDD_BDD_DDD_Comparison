@@ -6,16 +6,10 @@
 from pathlib import Path
 
 import pygame
-<<<<<<< HEAD
 from .views.product_list_view import ProductListView
 from .views.cart_view import CartView
 from .views.checkout_view import CheckoutView
-=======
-from shared.ui.views.product_list_view import ProductListView
-from shared.ui.views.cart_view import CartView
-from shared.ui.views.checkout_view import CheckoutView
-from shared.ui.views.base_view import BaseView
->>>>>>> origin/tdd/develop
+
 
 class MainWindow:
     def __init__(self, cart, width=1200, height=800):
