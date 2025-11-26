@@ -38,7 +38,7 @@ class CheckoutView(BaseView):
         """No periodic updates required for checkout view."""
 
     def draw(self) -> None:
-        y = self.draw_title("結帳 / 折扣碼")
+        y = self.draw_title("結帳")
         y = self.draw_line(f"商品數量：{self._total_items()}", y)
         y = self.draw_line(f"小計：${self.cart.subtotal:,}", y)
         y = self.draw_line(f"折扣：-${self.cart.discount_amount:,}", y)
