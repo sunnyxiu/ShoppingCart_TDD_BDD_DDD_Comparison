@@ -52,6 +52,34 @@ def step_impl(context, quantity, product_name):
     product = _get_product_by_name(product_name)
     context.cart.add_item(product.id, quantity)
 
+@given('我的購物車中有以下商品:')
+def step_impl(context):
+    """使用表格資料初始化購物車"""
+    context.cart = ShoppingCart()
+    
+    # 遍歷表格中的每一行
+    for row in context.table:
+        product_name = row['商品名稱']
+        quantity = int(row['數量'])
+        price = int(row['價格'])
+        
+        # 找到對應的商品
+        product = _get_product_by_name(product_name)
+        
+        # 驗證價格是否正確
+        assert product.price == price, \
+            f"{product_name} 的價格應該是 {price}，但實際是 {product.price}"
+        
+        # 加入購物車
+        context.cart.add_item(product.id, quantity)
+
+
+@given('已套用折價券 "{coupon_code}"')
+def step_impl(context, coupon_code):
+    """套用折價券（暫時只記錄，折扣功能之後實作）"""
+    # 這裡先簡單記錄折價券代碼
+    # 完整的折價券功能會在折扣功能場景中實作
+    context.cart.discount_code = coupon_code
 
 # ==================== When 步驟 ====================
 
@@ -132,6 +160,13 @@ def step_impl(context, product_name, new_quantity):
         context.update_success = False
         context.error_message = str(e)
 
+@when('我清空購物車')
+def step_impl(context):
+    """清空購物車"""
+    context.cart.clear()
+
+
+
 # ==================== Then 步驟 ====================
 
 @then('購物車應該有 {expected_count:d} 件商品')
@@ -208,6 +243,12 @@ def step_impl(context):
     """驗證更新操作失敗"""
     assert context.update_success == False, \
         "預期更新失敗，但實際成功了"
+    
+@then('折價券應該被移除')
+def step_impl(context):
+    """驗證折價券已被移除"""
+    assert context.cart.discount_code is None, \
+        f"折價券應該被移除，但目前還有: {context.cart.discount_code}"
 
 # ==================== 輔助函數 ====================
 

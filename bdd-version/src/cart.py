@@ -134,3 +134,12 @@ class ShoppingCart:
         
         # 更新數量
         target_item.quantity = new_quantity
+
+    def clear(self):
+        """
+        清空購物車
+        
+        移除所有商品和折價券
+        """
+        self.items = []
+        self.discount_code = None
