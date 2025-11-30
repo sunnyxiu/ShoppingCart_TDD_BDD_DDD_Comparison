@@ -31,6 +31,13 @@ def step_impl(context, quantity, product_name, price):
     
     context.cart.add_item(product.id, quantity)
 
+@given('商品 "{product_name}" 的庫存有 {stock:d} 台')
+def step_impl(context, product_name, stock):
+    """設定商品庫存（模擬庫存變更）"""
+    product = _get_product_by_name(product_name)
+    # 暫時修改商品庫存（僅用於測試）
+    product.stock = stock
+
 
 # ==================== When 步驟 ====================
 
@@ -52,6 +59,20 @@ def step_impl(context, quantity, product_name):
     product = _get_product_by_name(product_name)
     context.cart.add_item(product.id, quantity)
 
+@when('我嘗試加入 {quantity:d} 台 "{product_name}"')
+def step_impl(context, quantity, product_name):
+    """嘗試加入商品（可能失敗）"""
+    try:
+        product = _get_product_by_name(product_name)
+        context.cart.add_item(product.id, quantity)
+        context.add_success = True
+        context.error_message = None
+    except ValueError as e:
+        context.add_success = False
+        context.error_message = str(e)
+    except Exception as e:
+        context.add_success = False
+        context.error_message = str(e)
 
 # ==================== Then 步驟 ====================
 
@@ -97,6 +118,18 @@ def step_impl(context, expected_quantity, product_name):
     assert total_quantity == expected_quantity, \
         f"預期 {product_name} 有 {expected_quantity} 台，但實際有 {total_quantity} 台"
 
+@then('加入應該失敗')
+def step_impl(context):
+    """驗證操作失敗"""
+    assert context.add_success == False, \
+        "預期操作失敗，但實際成功了"
+
+
+@then('應該顯示錯誤訊息 "{expected_message}"')
+def step_impl(context, expected_message):
+    """驗證錯誤訊息"""
+    assert context.error_message == expected_message, \
+        f"預期錯誤訊息: '{expected_message}'，實際: '{context.error_message}'"
 
 # ==================== 輔助函數 ====================
 
