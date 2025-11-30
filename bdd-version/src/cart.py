@@ -8,27 +8,20 @@ sys.path.insert(0, project_root)
 from shared.models.cart_item import CartItem
 from shared.data.products import get_product_by_id
 from shared.utils.price_calculator import calculate_total
+from typing import List, Tuple
 
 
-class ShoppingCart:
+class Cart:
     """購物車類別"""
     
     def __init__(self):
-        self.items = []  # List[CartItem]
-        self.discount_code = None
+        """初始化購物車"""
+        self.items: List[CartItem] = []
+        self.applied_discount: None  # 重要！必須初始化這個屬性
     
-    def add_item(self, product_id: str, quantity: int):
-        """
-        加入商品到購物車
-        
-        Args:
-            product_id: 商品 ID (例如: "P001")
-            quantity: 數量
-        
-        Raises:
-            ValueError: 當數量不合法或庫存不足時
-        """
-        # 驗證數量
+    def add_item(self, product_id: str, quantity: int) -> bool:
+        """加入商品到購物車"""
+        # 驗證數量 - 分開檢查
         if quantity <= 0:
             raise ValueError("數量必須大於 0")
         
@@ -40,10 +33,6 @@ class ShoppingCart:
         if not product:
             raise ValueError(f"商品不存在: {product_id}")
         
-        # 驗證庫存
-        if quantity > product.stock:
-            raise ValueError("庫存不足")
-        
         # 檢查購物車中是否已有此商品
         existing_item = None
         for item in self.items:
@@ -52,7 +41,7 @@ class ShoppingCart:
                 break
         
         if existing_item:
-            # 如果已存在，增加數量
+            # 如果已存在，累加數量
             new_quantity = existing_item.quantity + quantity
             
             # 驗證新數量
@@ -65,56 +54,32 @@ class ShoppingCart:
             
             existing_item.quantity = new_quantity
         else:
-            # 如果不存在，新增商品
+            # 驗證庫存
+            if quantity > product.stock:
+                raise ValueError("庫存不足")
+            
+            # 新增商品
             self.items.append(CartItem(product, quantity))
+        
+        return True
     
-    def remove_item(self, product_id: str):
-        """
-        從購物車移除商品
-        
-        Args:
-            product_id: 商品 ID
-        
-        Raises:
-            ValueError: 當商品不存在時
-        """
-        # 檢查商品是否存在
+    def remove_item(self, product_id: str) -> bool:
+        """從購物車移除商品"""
         item_exists = any(item.product.id == product_id for item in self.items)
         
         if not item_exists:
             raise ValueError("商品不存在於購物車")
         
-        # 移除商品
         self.items = [item for item in self.items if item.product.id != product_id]
+        return True
     
-    def get_items(self):
-        """取得購物車中所有商品"""
-        return self.items
-    
-    def get_total(self):
-        """計算購物車總金額"""
-        return calculate_total(self.items)
-    
-    def get_item_count(self):
-        """取得購物車中的商品總數量"""
-        return sum(item.quantity for item in self.items)
-    
-    def update_item_quantity(self, product_id: str, new_quantity: int):
-        """
-        更新購物車中商品的數量
-        
-        Args:
-            product_id: 商品 ID
-            new_quantity: 新的數量
-        
-        Raises:
-            ValueError: 當數量不合法、商品不存在或庫存不足時
-        """
-        # 驗證數量
-        if new_quantity <= 0:
+    def update_quantity(self, product_id: str, quantity: int) -> bool:
+        """更新購物車中商品的數量"""
+        # 驗證數量 - 分開檢查
+        if quantity <= 0:
             raise ValueError("數量必須大於 0")
         
-        if new_quantity > 99:
+        if quantity > 99:
             raise ValueError("單項商品數量不可超過 99")
         
         # 找到購物車中的商品
@@ -129,36 +94,41 @@ class ShoppingCart:
         
         # 取得商品資訊驗證庫存
         product = get_product_by_id(product_id)
-        if new_quantity > product.stock:
+        if quantity > product.stock:
             raise ValueError("庫存不足")
         
         # 更新數量
-        target_item.quantity = new_quantity
-
-    def clear(self):
-        """
-        清空購物車
-        
-        移除所有商品和折價券
-        """
-        self.items = []
-        self.discount_code = None
+        target_item.quantity = quantity
+        return True
     
-    def apply_discount(self, discount_code):
-        """
-        套用折價券
-        
-        Args:
-            discount_code: DiscountCode 物件
-        
-        Raises:
-            ValueError: 當折價券無效或不符合條件時
-        """
-        from shared.utils.discount_validator import validate_discount_code
+    def clear(self):
+        """清空購物車"""
+        self.items = []
+        self.applied_discount = None
+    
+    def get_total(self) -> int:
+        """計算購物車原始總金額（未套用折扣）"""
+        return calculate_total(self.items)
+    
+    def get_final_amount(self) -> int:
+        """計算最終金額（套用折扣後）"""
         from shared.utils.price_calculator import calculate_final_amount
         
         # 計算原始總金額
         original_total = calculate_total(self.items)
+        
+        # 如果有折價券，計算折扣後金額
+        if self.applied_discount:
+            return calculate_final_amount(original_total, self.applied_discount)
+        
+        return original_total
+    
+    def apply_discount(self, discount_code) -> Tuple[bool, str]:
+        """套用折扣碼"""
+        from shared.utils.discount_validator import validate_discount_code
+        
+        # 計算原始總金額
+        original_total = self.get_total()
         
         # 驗證折價券
         is_valid, message = validate_discount_code(original_total, discount_code)
@@ -166,19 +136,14 @@ class ShoppingCart:
         if not is_valid:
             raise ValueError(message)
         
-        # 套用折價券
-        self.discount_code = discount_code
-
-
-    def get_total(self):
-        """計算購物車總金額（含折扣）"""
-        from shared.utils.price_calculator import calculate_final_amount
-        
-        # 計算原始總金額
-        original_total = calculate_total(self.items)
-        
-        # 如果有折價券，計算折扣後金額
-        if self.discount_code:
-            return calculate_final_amount(original_total, self.discount_code)
-        
-        return original_total
+        # 套用折價券（新的會覆蓋舊的）
+        self.applied_discount = discount_code
+        return True, "折扣已套用"
+    
+    def get_items(self) -> List[CartItem]:
+        """取得購物車中所有商品"""
+        return self.items
+    
+    def get_item_count(self) -> int:
+        """取得購物車中的商品總數量"""
+        return sum(item.quantity for item in self.items)

@@ -6,7 +6,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..
 sys.path.insert(0, project_root)
 
 from behave import given, when, then
-from src.cart import ShoppingCart
+from src.cart import Cart
 from shared.data.products import PRODUCTS
 from shared.data.discount_codes import get_discount_code
 
@@ -113,7 +113,7 @@ def step_impl(context, coupon_code):
 @then('折價券應該套用成功')
 def step_impl(context):
     """驗證折價券套用成功"""
-    assert context.cart.discount_code is not None, \
+    assert context.cart.applied_discount is not None, \
         "折價券應該已套用，但購物車中沒有折價券"
 
 @then('折價券應該套用失敗')
@@ -126,8 +126,8 @@ def step_impl(context):
 def step_impl(context, old_coupon_code):
     """驗證舊折價券已被移除"""
     # 檢查當前折價券不是舊的折價券
-    if context.cart.discount_code:
-        current_code = context.cart.discount_code.code
+    if context.cart.applied_discount:  # ← 修改這裡
+        current_code = context.cart.applied_discount.code  # ← 修改這裡
         assert current_code != old_coupon_code.upper(), \
             f"舊折價券 {old_coupon_code} 應該被移除，但還在購物車中"
     
