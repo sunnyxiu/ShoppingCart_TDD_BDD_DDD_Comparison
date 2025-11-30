@@ -38,6 +38,13 @@ def step_impl(context, product_name, stock):
     # 暫時修改商品庫存（僅用於測試）
     product.stock = stock
 
+@given('我的購物車中只有 {quantity:d} 台 "{product_name}"')
+def step_impl(context, quantity, product_name):
+    """購物車中只有指定商品（不驗證價格）"""
+    context.cart = ShoppingCart()
+    product = _get_product_by_name(product_name)
+    context.cart.add_item(product.id, quantity)
+
 
 # ==================== When 步驟 ====================
 
@@ -72,6 +79,28 @@ def step_impl(context, quantity, product_name):
         context.error_message = str(e)
     except Exception as e:
         context.add_success = False
+        context.error_message = str(e)
+
+@when('我移除 "{product_name}"')
+def step_impl(context, product_name):
+    """移除商品（預期成功）"""
+    product = _get_product_by_name(product_name)
+    context.cart.remove_item(product.id)
+
+
+@when('我嘗試移除 "{product_name}"')
+def step_impl(context, product_name):
+    """嘗試移除商品（可能失敗）"""
+    try:
+        product = _get_product_by_name(product_name)
+        context.cart.remove_item(product.id)
+        context.remove_success = True
+        context.error_message = None
+    except ValueError as e:
+        context.remove_success = False
+        context.error_message = str(e)
+    except Exception as e:
+        context.remove_success = False
         context.error_message = str(e)
 
 # ==================== Then 步驟 ====================
@@ -130,6 +159,20 @@ def step_impl(context, expected_message):
     """驗證錯誤訊息"""
     assert context.error_message == expected_message, \
         f"預期錯誤訊息: '{expected_message}'，實際: '{context.error_message}'"
+
+@then('購物車應該是空的')
+def step_impl(context):
+    """驗證購物車為空"""
+    item_count = context.cart.get_item_count()
+    assert item_count == 0, \
+        f"購物車應該是空的，但還有 {item_count} 件商品"
+
+
+@then('移除應該失敗')
+def step_impl(context):
+    """驗證移除操作失敗"""
+    assert context.remove_success == False, \
+        "預期移除失敗，但實際成功了"
 
 # ==================== 輔助函數 ====================
 

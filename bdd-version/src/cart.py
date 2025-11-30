@@ -68,6 +68,25 @@ class ShoppingCart:
             # 如果不存在，新增商品
             self.items.append(CartItem(product, quantity))
     
+    def remove_item(self, product_id: str):
+        """
+        從購物車移除商品
+        
+        Args:
+            product_id: 商品 ID
+        
+        Raises:
+            ValueError: 當商品不存在時
+        """
+        # 檢查商品是否存在
+        item_exists = any(item.product.id == product_id for item in self.items)
+        
+        if not item_exists:
+            raise ValueError("商品不存在於購物車")
+        
+        # 移除商品
+        self.items = [item for item in self.items if item.product.id != product_id]
+    
     def get_items(self):
         """取得購物車中所有商品"""
         return self.items
