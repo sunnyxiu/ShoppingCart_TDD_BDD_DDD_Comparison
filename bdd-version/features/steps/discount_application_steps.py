@@ -31,6 +31,24 @@ def step_impl(context, coupon_code):
     assert discount_code.is_active == False, \
         f"{coupon_code} 應該已過期，但還是啟用狀態"
     
+@given('已使用折價券 "{coupon_code}" 折抵 {percentage:d}%')
+def step_impl(context, coupon_code, percentage):
+    """預先套用百分比折價券"""
+    discount_code = get_discount_code(coupon_code)
+    
+    # 驗證折扣值是否正確
+    assert discount_code is not None, f"找不到折價券: {coupon_code}"
+    assert discount_code.discount_type == "percentage", \
+        f"{coupon_code} 應該是百分比折扣"
+    assert discount_code.value == percentage, \
+        f"{coupon_code} 的折扣比例應該是 {percentage}%，但實際是 {discount_code.value}%"
+    
+    # 套用折價券
+    context.cart.apply_discount(discount_code)
+    
+    # 記錄舊的折價券代碼（用於後續驗證）
+    context.old_discount_code = coupon_code
+    
 # ==================== When 步驟 ====================
 
 @when('我使用折價券 "{coupon_code}" 折抵 {value:d} 元')
@@ -88,6 +106,8 @@ def step_impl(context, coupon_code):
         context.discount_success = False
         context.error_message = str(e)
 
+    
+
 # ==================== Then 步驟 ====================
 
 @then('折價券應該套用成功')
@@ -101,6 +121,15 @@ def step_impl(context):
     """驗證折價券套用失敗"""
     assert context.discount_success == False, \
         "預期折價券套用失敗，但實際成功了"
+    
+@then('折價券 "{old_coupon_code}" 應該被移除')
+def step_impl(context, old_coupon_code):
+    """驗證舊折價券已被移除"""
+    # 檢查當前折價券不是舊的折價券
+    if context.cart.discount_code:
+        current_code = context.cart.discount_code.code
+        assert current_code != old_coupon_code.upper(), \
+            f"舊折價券 {old_coupon_code} 應該被移除，但還在購物車中"
     
 # ==================== 輔助函數 ====================
 
