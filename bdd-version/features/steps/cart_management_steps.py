@@ -45,6 +45,13 @@ def step_impl(context, quantity, product_name):
     product = _get_product_by_name(product_name)
     context.cart.add_item(product.id, quantity)
 
+@given('我的購物車中已有 {quantity:d} 台 "{product_name}"')
+def step_impl(context, quantity, product_name):
+    """購物車中已有商品（不指定價格，用於更新數量場景）"""
+    context.cart = ShoppingCart()
+    product = _get_product_by_name(product_name)
+    context.cart.add_item(product.id, quantity)
+
 
 # ==================== When 步驟 ====================
 
@@ -101,6 +108,28 @@ def step_impl(context, product_name):
         context.error_message = str(e)
     except Exception as e:
         context.remove_success = False
+        context.error_message = str(e)
+
+@when('我將 "{product_name}" 的數量更新為 {new_quantity:d} 台')
+def step_impl(context, product_name, new_quantity):
+    """更新商品數量（預期成功）"""
+    product = _get_product_by_name(product_name)
+    context.cart.update_item_quantity(product.id, new_quantity)
+
+
+@when('我嘗試將 "{product_name}" 的數量更新為 {new_quantity:d} 台')
+def step_impl(context, product_name, new_quantity):
+    """嘗試更新商品數量（可能失敗）"""
+    try:
+        product = _get_product_by_name(product_name)
+        context.cart.update_item_quantity(product.id, new_quantity)
+        context.update_success = True
+        context.error_message = None
+    except ValueError as e:
+        context.update_success = False
+        context.error_message = str(e)
+    except Exception as e:
+        context.update_success = False
         context.error_message = str(e)
 
 # ==================== Then 步驟 ====================
@@ -173,6 +202,12 @@ def step_impl(context):
     """驗證移除操作失敗"""
     assert context.remove_success == False, \
         "預期移除失敗，但實際成功了"
+
+@then('更新應該失敗')
+def step_impl(context):
+    """驗證更新操作失敗"""
+    assert context.update_success == False, \
+        "預期更新失敗，但實際成功了"
 
 # ==================== 輔助函數 ====================
 
