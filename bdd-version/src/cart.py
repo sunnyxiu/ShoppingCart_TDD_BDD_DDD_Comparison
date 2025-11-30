@@ -143,3 +143,42 @@ class ShoppingCart:
         """
         self.items = []
         self.discount_code = None
+    
+    def apply_discount(self, discount_code):
+        """
+        套用折價券
+        
+        Args:
+            discount_code: DiscountCode 物件
+        
+        Raises:
+            ValueError: 當折價券無效或不符合條件時
+        """
+        from shared.utils.discount_validator import validate_discount_code
+        from shared.utils.price_calculator import calculate_final_amount
+        
+        # 計算原始總金額
+        original_total = calculate_total(self.items)
+        
+        # 驗證折價券
+        is_valid, message = validate_discount_code(original_total, discount_code)
+        
+        if not is_valid:
+            raise ValueError(message)
+        
+        # 套用折價券
+        self.discount_code = discount_code
+
+
+    def get_total(self):
+        """計算購物車總金額（含折扣）"""
+        from shared.utils.price_calculator import calculate_final_amount
+        
+        # 計算原始總金額
+        original_total = calculate_total(self.items)
+        
+        # 如果有折價券，計算折扣後金額
+        if self.discount_code:
+            return calculate_final_amount(original_total, self.discount_code)
+        
+        return original_total
