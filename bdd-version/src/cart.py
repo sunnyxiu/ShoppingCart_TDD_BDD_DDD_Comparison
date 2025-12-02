@@ -17,7 +17,7 @@ class Cart:
     def __init__(self):
         """初始化購物車"""
         self.items: List[CartItem] = []
-        self.applied_discount: None  # 重要！必須初始化這個屬性
+        self.applied_discount = None  # 重要！必須初始化這個屬性
     
     def add_item(self, product_id: str, quantity: int) -> bool:
         """加入商品到購物車"""
