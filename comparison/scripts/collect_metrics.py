@@ -39,7 +39,7 @@ class MetricsCollector:
             version_name: 版本名稱 (tdd, bdd, ddd)
         """
         self.version = version_name.upper()
-        self.version_path = f"../{version_name}-version/src"
+        self.version_path = f"../../{version_name}-version/src"
         self.metrics_file = "../comparison/metrics/code_metrics.csv"
         
     def count_lines(self):
@@ -101,7 +101,7 @@ class MetricsCollector:
         elif version_lower == 'bdd':
             test_path = f"../{version_lower}-version/features"
         else:  # ddd
-            test_path = f"../{version_lower}-version/tests"
+            test_path = f"../../{version_lower}-version/tests"
         
         try:
             result = subprocess.run(
@@ -151,7 +151,7 @@ class MetricsCollector:
     def count_doc_lines(self):
         """計算文件行數"""
         version_lower = self.version.lower()
-        doc_path = f"../{version_lower}-version/docs"
+        doc_path = f"../../{version_lower}-version/docs"
         
         if not Path(doc_path).exists():
             return 0

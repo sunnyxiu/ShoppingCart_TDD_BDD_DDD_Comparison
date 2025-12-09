@@ -1,7 +1,13 @@
 版本,功能,開始時間,結束時間,耗時(分鐘),備註
-DDD, 01_overview.md, 10:00, 10:37, 37
-DDD, 04_data_model.md, 10:39, 10:56, 17
-DDD, 05_business_rules.md, 11:03, 11:05, 2
-DDD, 03_api_specification.md, 11:06, 12:17, 71
-DDD, 03_api_specification.md, 23:32, 23:56, 24
-DDD, 03_api_specification, 20:03, 20:31, 28
+DDD, 01_overview.md,2024-11-18 10:00, 10:37, 37
+DDD, 04_data_model.md,2024-11-18 10:39, 10:56, 17
+DDD, 05_business_rules.md,2024-11-18 11:03, 11:05, 2
+DDD, 03_api_specification.md,2024-11-18 11:06, 12:17, 71
+DDD, 03_api_specification.md,2024-11-18 23:32, 23:56, 24
+DDD, 03_api_specification, 2024-11-19 20:03, 20:31, 28
+DDD, 02_architecture.md, 2024-11-20 13:56, 14:00, 4
+DDD, 06_error_handling.md,2024-11-22 14:02, 14:06, 4
+DDD, 06_error_handling.md,2024-11-22 14:04, 14:08, 4
+DDD, cart.py, 2024-11-23 13:50, 14:02, 12
+DDD, manual_test.py, 2024-11-23 14:02, 14:13, 11
+DDD, test_api_compliace.py, 2024-11-25 20:00, 21:00, 60
