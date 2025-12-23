@@ -14,3 +14,15 @@
 	- `docs/`: Ubiquitous Language 與領域文件。
 
 所有版本在 `shared/` 資料夾中共用相同的資料模型、折扣與價格邏輯，確保比較過程的公平性。
+
+## 運行方式
+
+- TDD 版本：
+	- `python -m pytest tdd-version/tests`
+	- `python tdd-version/run_demo.py`
+- BDD 版本：
+	- `python -m pytest bdd-version/features`
+	- `python bdd-version/run_demo.py`
+- DDD 版本：
+	- `python -m pytest ddd-version/tests`
+	- `python ddd-version/run_demo.py`
